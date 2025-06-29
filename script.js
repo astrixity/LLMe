@@ -744,19 +744,35 @@ class ChatApp {
             console.log(`Ollama: Sending ${images.length} image(s) to vision model ${this.settings.model}`);
         }
 
-        const response = await fetch(`${this.settings.ollamaUrl}/api/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody)
-        });
+        try {
+            const response = await fetch(`${this.settings.ollamaUrl}/api/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
 
-        if (!response.ok) {
-            throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+            }
+
+            return response;
+        } catch (error) {
+            if (error.message.includes('CORS') || error.name === 'TypeError') {
+                throw new Error(`CORS error: Cannot access Ollama from web browser.
+
+To fix this issue:
+1. Download and run this app locally (recommended)
+2. Configure Ollama to allow web access:
+   - Set environment variable: OLLAMA_ORIGINS=https://astrixity.github.io
+   - Or restart with: ollama serve --origins https://astrixity.github.io
+3. For local development: OLLAMA_ORIGINS=*
+
+The web browser blocks cross-origin requests for security reasons.`);
+            }
+            throw error;
         }
-
-        return response;
     }
 
     async callOpenRouter(messages) {
@@ -848,10 +864,26 @@ class ChatApp {
             let success = false;
             
             if (this.settings.provider === 'ollama') {
-                const response = await fetch(`${this.settings.ollamaUrl}/api/tags`);
-                success = response.ok;
-                if (success) {
-                    await this.loadOllamaModels();
+                try {
+                    const response = await fetch(`${this.settings.ollamaUrl}/api/tags`);
+                    success = response.ok;
+                    if (success) {
+                        await this.loadOllamaModels();
+                    }
+                } catch (error) {
+                    if (error.message.includes('CORS') || error.name === 'TypeError') {
+                        throw new Error(`CORS error: Cannot access Ollama from web browser. 
+                        
+Solutions:
+1. Download and run this app locally (recommended)
+2. Use a browser extension to disable CORS (not recommended for security)
+3. Run Ollama with CORS enabled: 
+   - Set environment variable: OLLAMA_ORIGINS=https://astrixity.github.io
+   - Or use: ollama serve --origins https://astrixity.github.io
+
+For local development, you can also set OLLAMA_ORIGINS=* (allows all origins)`);
+                    }
+                    throw error;
                 }
             } else if (this.settings.provider === 'openrouter') {
                 if (!this.settings.openrouterKey) {
@@ -964,7 +996,21 @@ class ChatApp {
         } catch (error) {
             console.error('Failed to load Ollama models:', error);
             this.providerModels.ollama = [];
-            throw new Error(`Cannot connect to Ollama at ${this.settings.ollamaUrl}. Make sure Ollama is running.`);
+            
+            if (error.message.includes('CORS') || error.name === 'TypeError') {
+                throw new Error(`CORS error: Cannot access Ollama from web browser.
+
+To fix this issue:
+1. Download and run this app locally (recommended)
+2. Configure Ollama to allow web access:
+   - Set OLLAMA_ORIGINS=https://astrixity.github.io
+   - Or restart Ollama with: ollama serve --origins https://astrixity.github.io
+3. For local development: OLLAMA_ORIGINS=*
+
+Note: Web browsers block cross-origin requests for security.`);
+            }
+            
+            throw new Error(`Cannot connect to Ollama at ${this.settings.ollamaUrl}. Make sure Ollama is running and accessible.`);
         }
     }
 
@@ -1473,8 +1519,22 @@ class ChatApp {
     }
 
     showWelcomeSection() {
+        // Check if we're running from GitHub Pages and show CORS warning for Ollama
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        const corsWarning = isGitHubPages ? `
+            <div class="cors-warning" style="background: #ff6b6b; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Note:</strong> Ollama won't work directly from this hosted version due to CORS restrictions. 
+                <br><strong>Solutions:</strong>
+                <br>• Download and run locally (recommended)
+                <br>• Use OpenRouter or Custom API instead
+                <br>• Configure Ollama with: <code>OLLAMA_ORIGINS=https://astrixity.github.io</code>
+            </div>
+        ` : '';
+
         this.chatMessages.innerHTML = `
             <div class="welcome-section">
+                ${corsWarning}
                 <div class="welcome-title">
                     <h1>LLMe</h1>
                     <p>How can I help you today?</p>
