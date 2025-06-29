@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Test - LLMe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #343541;
+            color: white;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #444654;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .markdown-test {
+            margin: 20px 0;
+            padding: 20px;
+            background: #2d3748;
+            border-radius: 6px;
+            border-left: 4px solid #10a37f;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="test-container">
+        <h1>LLMe Markdown Support Test</h1>
+        <p>This page tests the markdown rendering functionality that's now integrated into LLMe.</p>
+        <p><strong>NEW:</strong> LLMe now includes response metadata footers showing model, provider, tokens, and response time!</p>
+        
+        <div class="markdown-test">
+            <h2>Test Markdown Content</h2>
+            <div class="message-text" id="markdown-output">
+                <!-- Markdown will be rendered here -->
+            </div>
+        </div>
+        
+        <div class="markdown-test">
+            <h2>Raw Markdown Input</h2>
+            <pre><code># Sample Markdown Content
+
+This is a **bold** text and this is *italic* text.
+
+## Code Example
+
+Here's a Python function:
+
+```python
+def fibonacci(n):
+    """Generate Fibonacci sequence up to n terms."""
+    if n <= 0:
+        return []
+    elif n == 1:
+        return [0]
+    elif n == 2:
+        return [0, 1]
+    
+    sequence = [0, 1]
+    for i in range(2, n):
+        sequence.append(sequence[i-1] + sequence[i-2])
+    
+    return sequence
+
+# Example usage
+print(fibonacci(10))
+```
+
+## Features List
+
+1. **Headers** - Multiple levels supported
+2. **Text formatting** - Bold, italic, inline `code`
+3. **Code blocks** - With syntax highlighting
+4. **Lists** - Both ordered and unordered
+5. **Tables** - Full table support
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Markdown parsing | ✅ Complete | Using marked.js |  
+| Syntax highlighting | ✅ Complete | Using highlight.js |
+| Copy buttons | ✅ Complete | Clipboard API |
+| Responsive design | ✅ Complete | Mobile optimized |
+
+## Blockquote
+
+> "The best way to test markdown support is to use it in practice with real content that includes various formatting elements."
+
+## Links and More
+
+Check out the [LLMe documentation](https://github.com) for more information.
+
+---
+
+This demonstrates the full range of markdown features now supported in LLMe!</code></pre>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // Initialize markdown
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (err) {
+                        console.warn('Highlight.js error:', err);
+                    }
+                }
+                return code;
+            }
+        });
+
+        // Test markdown content
+        const markdownContent = `# Sample Markdown Content
+
+This is a **bold** text and this is *italic* text.
+
+## Code Example
+
+Here's a Python function:
+
+\`\`\`python
+def fibonacci(n):
+    """Generate Fibonacci sequence up to n terms."""
+    if n <= 0:
+        return []
+    elif n == 1:
+        return [0]
+    elif n == 2:
+        return [0, 1]
+    
+    sequence = [0, 1]
+    for i in range(2, n):
+        sequence.append(sequence[i-1] + sequence[i-2])
+    
+    return sequence
+
+# Example usage
+print(fibonacci(10))
+\`\`\`
+
+## Features List
+
+1. **Headers** - Multiple levels supported
+2. **Text formatting** - Bold, italic, inline \`code\`
+3. **Code blocks** - With syntax highlighting
+4. **Lists** - Both ordered and unordered
+5. **Tables** - Full table support
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Markdown parsing | ✅ Complete | Using marked.js |  
+| Syntax highlighting | ✅ Complete | Using highlight.js |
+| Copy buttons | ✅ Complete | Clipboard API |
+| Responsive design | ✅ Complete | Mobile optimized |
+
+## Blockquote
+
+> "The best way to test markdown support is to use it in practice with real content that includes various formatting elements."
+
+## Links and More
+
+Check out the [LLMe documentation](https://github.com) for more information.
+
+---
+
+This demonstrates the full range of markdown features now supported in LLMe!`;
+
+        // Render the markdown
+        const output = document.getElementById('markdown-output');
+        output.innerHTML = marked.parse(markdownContent);
+
+        // Add syntax highlighting and copy buttons
+        setTimeout(() => {
+            const codeBlocks = document.querySelectorAll('pre code:not(.hljs)');
+            codeBlocks.forEach(block => {
+                hljs.highlightElement(block);
+                
+                // Add copy button
+                const pre = block.parentElement;
+                if (pre && !pre.querySelector('.copy-btn')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.onclick = () => {
+                        const code = block.textContent || block.innerText;
+                        navigator.clipboard.writeText(code).then(() => {
+                            copyBtn.textContent = 'Copied!';
+                            copyBtn.classList.add('copied');
+                            setTimeout(() => {
+                                copyBtn.textContent = 'Copy';
+                                copyBtn.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy:', err);
+                        });
+                    };
+                    pre.appendChild(copyBtn);
+                }
+            });
+        }, 10);
+    </script>
+</body>
+</html>

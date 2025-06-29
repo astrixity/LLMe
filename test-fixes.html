@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMe Fixes Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #343541;
+            color: white;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #565869;
+            border-radius: 8px;
+        }
+        
+        .streaming-cursor {
+            color: #10a37f;
+            animation: blink 1s infinite;
+            font-family: monospace;
+            font-weight: bold;
+            margin-left: 1px;
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0;
+            }
+        }
+        
+        .test-text {
+            background: #40414f;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        button {
+            background: #10a37f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0d8968;
+        }
+    </style>
+</head>
+<body>
+    <h1>LLMe Fixes Test Page</h1>
+    
+    <div class="test-section">
+        <h2>1. LocalStorage Fix Test</h2>
+        <p>Testing consistent localStorage keys for conversations.</p>
+        <button onclick="testLocalStorage()">Test localStorage</button>
+        <div id="localStorageResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Streaming Cursor Position Test</h2>
+        <p>Testing cursor positioning next to text (not under it).</p>
+        <div class="test-text">
+            This is a sample text<span class="streaming-cursor">|</span>
+        </div>
+        <div class="test-text">
+            Multi-line text example<br>
+            Second line here<span class="streaming-cursor">|</span>
+        </div>
+        <div class="test-text">
+            Text with <strong>bold</strong> and <em>italic</em> formatting<span class="streaming-cursor">|</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Markdown Rendering Test</h2>
+        <p>Testing simple markdown formatting without flickering.</p>
+        <button onclick="simulateStreaming()">Simulate Streaming</button>
+        <div id="streamingTest" class="test-text"></div>
+    </div>
+
+    <script>
+        function testLocalStorage() {
+            const testData = {
+                conversations: [
+                    { id: 'test1', title: 'Test Chat 1', messages: [] },
+                    { id: 'test2', title: 'Test Chat 2', messages: [] }
+                ],
+                currentId: 'test1'
+            };
+            
+            // Test saving with the correct keys
+            localStorage.setItem('llme_conversations', JSON.stringify(testData.conversations));
+            localStorage.setItem('llme_current_conversation', testData.currentId);
+            
+            // Test loading
+            const savedConversations = localStorage.getItem('llme_conversations');
+            const savedCurrentId = localStorage.getItem('llme_current_conversation');
+            
+            const result = document.getElementById('localStorageResult');
+            if (savedConversations && savedCurrentId) {
+                result.innerHTML = `
+                    <div style="color: #10a37f; margin-top: 10px;">
+                        ✅ LocalStorage test passed!<br>
+                        Conversations: ${JSON.parse(savedConversations).length} items<br>
+                        Current ID: ${savedCurrentId}
+                    </div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div style="color: #dc3545; margin-top: 10px;">
+                        ❌ LocalStorage test failed!
+                    </div>
+                `;
+            }
+        }
+        
+        function formatStreamingContentSimple(content) {
+            if (!content) return '';
+            
+            return content
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`\n]+)`/g, '<code>$1</code>');
+        }
+        
+        function simulateStreaming() {
+            const testDiv = document.getElementById('streamingTest');
+            const fullText = `This is a **streaming** test with *markdown* formatting.\n\nIt includes:\n- Code snippets like \`console.log()\`\n- **Bold text**\n- *Italic text*\n- Line breaks\n\nThe cursor should appear next to the last character.`;
+            
+            let currentText = '';
+            let index = 0;
+            
+            testDiv.innerHTML = '';
+            
+            function addNextChar() {
+                if (index < fullText.length) {
+                    currentText += fullText[index];
+                    testDiv.innerHTML = formatStreamingContentSimple(currentText) + '<span class="streaming-cursor">|</span>';
+                    index++;
+                    setTimeout(addNextChar, 50);
+                } else {
+                    // Final render without cursor
+                    testDiv.innerHTML = formatStreamingContentSimple(currentText);
+                }
+            }
+            
+            addNextChar();
+        }
+    </script>
+</body>
+</html>

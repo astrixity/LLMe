@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMe - AI Chat Interface</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    New chat
+                </button>
+            </div>
+            
+            <div class="chat-history" id="chatHistory">
+                <!-- Chat history items will be populated here -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name">User</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-controls">
+                    <div class="model-selector">
+                        <select id="modelSelect">
+                            <option value="">Loading models...</option>
+                        </select>
+                        <button class="refresh-models-btn" id="refreshModelsBtn" title="Refresh models">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Welcome message -->
+                    <div class="welcome-section">
+                        <div class="welcome-title">
+                            <h1>LLMe</h1>
+                            <p>How can I help you today?</p>
+                        </div>
+                        <div class="example-prompts">
+                            <div class="prompt-card" data-prompt="Explain quantum computing in simple terms">
+                                <i class="fas fa-atom"></i>
+                                <span>Explain quantum computing in simple terms</span>
+                            </div>
+                            <div class="prompt-card" data-prompt="Write a Python function to sort a list">
+                                <i class="fas fa-code"></i>
+                                <span>Write a Python function to sort a list</span>
+                            </div>
+                            <div class="prompt-card" data-prompt="Create a markdown table comparing programming languages">
+                                <i class="fas fa-table"></i>
+                                <span>Create a markdown table comparing programming languages</span>
+                            </div>
+                            <div class="prompt-card" data-prompt="Plan a weekend trip to Paris">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <span>Plan a weekend trip to Paris</span>
+                            </div>
+                            <div class="prompt-card" data-prompt="Help me debug this JavaScript code">
+                                <i class="fas fa-bug"></i>
+                                <span>Help me debug this JavaScript code</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Message LLMe..." 
+                            rows="1"
+                            maxlength="4000"
+                        ></textarea>
+                        <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+                        <button class="upload-btn" id="uploadBtn" title="Upload images">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="settings-btn" id="settingsBtn" title="Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="send-btn" id="sendBtn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="uploaded-images" id="uploadedImages" style="display: none;">
+                        <!-- Uploaded images will be displayed here -->
+                    </div>
+                    <div class="input-footer">
+                        <small>LLMe is a flexible LLM UI supporting multiple providers and AI models.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>AI Provider Settings</h3>
+                <button class="modal-close" id="closeSettings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="setting-group">
+                    <label for="providerSelect">AI Provider:</label>
+                    <select id="providerSelect">
+                        <option value="ollama">Ollama (Local)</option>
+                        <option value="openrouter">OpenRouter</option>
+                        <option value="custom">Custom API</option>
+                    </select>
+                    <small>Choose your AI provider</small>
+                </div>
+
+                <div class="setting-group provider-ollama" id="ollamaSettings">
+                    <label for="ollamaUrl">Ollama Base URL:</label>
+                    <input type="text" id="ollamaUrl" placeholder="http://localhost:11434" value="http://localhost:11434">
+                    <small>Default: http://localhost:11434</small>
+                </div>
+                
+                <div class="setting-group provider-openrouter" id="openrouterSettings">
+                    <label for="openrouterKey">OpenRouter API Key:</label>
+                    <input type="password" id="openrouterKey" placeholder="Enter your OpenRouter API key">
+                    <small>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></small>
+                </div>
+                
+                <div class="setting-group provider-openrouter" id="openrouterUrlSettings">
+                    <label for="openrouterUrl">OpenRouter Base URL:</label>
+                    <input type="text" id="openrouterUrl" placeholder="https://openrouter.ai/api/v1" value="https://openrouter.ai/api/v1">
+                    <small>Default: https://openrouter.ai/api/v1</small>
+                </div>
+
+                <div class="setting-group provider-custom" id="customUrlSettings">
+                    <label for="customUrl">Custom API Base URL:</label>
+                    <input type="text" id="customUrl" placeholder="https://your-api.example.com/v1">
+                    <small>Enter your custom API endpoint URL</small>
+                </div>
+
+                <div class="setting-group provider-custom" id="customKeySettings">
+                    <label for="customKey">Custom API Key:</label>
+                    <input type="password" id="customKey" placeholder="Enter your custom API key">
+                    <small>API key for your custom provider (leave empty if not required)</small>
+                </div>
+
+                <div class="setting-group provider-custom" id="customModelSettings">
+                    <label for="customModel">Custom Model Name:</label>
+                    <input type="text" id="customModel" placeholder="gpt-3.5-turbo">
+                    <small>Model identifier for your custom API</small>
+                </div>
+
+                <div class="setting-group">
+                    <button class="test-connection-btn" id="testConnection">
+                        <i class="fas fa-plug"></i>
+                        Test Connection
+                    </button>
+                    <div class="connection-status" id="connectionStatus"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal" style="display: none;">
+        <div class="modal small-modal">
+            <div class="modal-header">
+                <h3>Delete Chat</h3>
+            </div>
+            <div class="modal-content">
+                <p>Are you sure you want to delete this chat? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                <button class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

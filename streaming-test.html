@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMe - Streaming & Markdown Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .message-test {
+            background: #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #444;
+        }
+        .streaming {
+            position: relative;
+        }
+        .streaming-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: #4CAF50;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #444;
+        }
+        code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 LLMe Streaming & Markdown Test</h1>
+    <p><strong>Purpose:</strong> Test the streaming response behavior with markdown to ensure no visual "seizure" effects occur.</p>
+
+    <div class="test-section">
+        <h2>🔄 Streaming Behavior Fix</h2>
+        <p><strong>Issue:</strong> Streaming responses with markdown were causing visual flickering/seizure effects.</p>
+        <p><strong>Solution:</strong> Separate streaming display (raw text) from final markdown rendering.</p>
+        
+        <h3>How it works:</h3>
+        <ol>
+            <li><strong>During streaming:</strong> Show raw text with escaped HTML and line breaks</li>
+            <li><strong>Add streaming cursor:</strong> Blinking cursor indicates active streaming</li>
+            <li><strong>After completion:</strong> Re-render with full markdown formatting</li>
+            <li><strong>Performance:</strong> Only update streaming message element, not full re-render</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Streaming Text Simulation</h2>
+        <div id="streamingDemo" class="message-test">
+            <div class="streaming">
+                <span id="streamingText"></span><span class="streaming-cursor"></span>
+            </div>
+        </div>
+        <button onclick="simulateStreaming()">▶️ Start Streaming Demo</button>
+        <button onclick="stopStreaming()">⏹️ Stop Demo</button>
+        <button onclick="renderMarkdown()">🎨 Convert to Markdown</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Test Scenarios</h2>
+        <p>The following scenarios should work smoothly without visual flickering:</p>
+        <ul>
+            <li>✅ <strong>Plain text streaming:</strong> Basic text response</li>
+            <li>✅ <strong>Code block streaming:</strong> Code with syntax highlighting</li>
+            <li>✅ <strong>Mixed content:</strong> Text + code + lists + tables</li>
+            <li>✅ <strong>Long responses:</strong> Multi-paragraph responses</li>
+            <li>✅ <strong>Special characters:</strong> HTML entities and symbols</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>💻 Implementation Details</h2>
+        <h3>Key Changes Made:</h3>
+        <pre><code>// NEW: Separate streaming update method
+updateStreamingMessage(message) {
+    // Only update the streaming message text, no markdown parsing
+    textDiv.innerHTML = escapeHtml(message.content).replace(/\n/g, '&lt;br&gt;') + 
+                      '&lt;span class="streaming-cursor"&gt;&lt;/span&gt;';
+}
+
+// CHANGED: Different rendering for streaming vs completed
+if (isStreaming) {
+    // Raw text during streaming
+    contentHtml = escapeContent + cursor;
+} else {
+    // Full markdown after completion
+    contentHtml = formatMessageContent(content);
+}</code></pre>
+        
+        <h3>Performance Benefits:</h3>
+        <ul>
+            <li>🚀 <strong>No markdown re-parsing</strong> during streaming</li>
+            <li>🎯 <strong>Targeted DOM updates</strong> instead of full re-render</li>
+            <li>⚡ <strong>Reduced CPU usage</strong> during long responses</li>
+            <li>👁️ <strong>Smooth visual experience</strong> without flickering</li>
+        </ul>
+    </div>
+
+    <script>
+        let streamingInterval;
+        let currentText = '';
+        
+        const sampleMarkdownText = `# Hello World!
+
+This is a **streaming response** with various markdown elements:
+
+## Code Example
+\`\`\`javascript
+function greet(name) {
+    console.log(\`Hello, \${name}!\`);
+    return "Welcome to LLMe!";
+}
+\`\`\`
+
+## Features List
+- ✅ Streaming responses
+- 🎨 Markdown rendering  
+- 💻 Code highlighting
+- 📊 Response metadata
+
+## Table Example
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Streaming | ✅ Fixed | No more seizure effects |
+| Markdown | ✅ Works | Full support |
+| Performance | ✅ Fast | Optimized rendering |
+
+That's the end of this **streaming demonstration**!`;
+
+        function simulateStreaming() {
+            stopStreaming(); // Clear any existing
+            currentText = '';
+            const textElement = document.getElementById('streamingText');
+            let index = 0;
+            
+            streamingInterval = setInterval(() => {
+                if (index < sampleMarkdownText.length) {
+                    currentText += sampleMarkdownText[index];
+                    // Escape HTML and preserve line breaks (like the real implementation)
+                    textElement.innerHTML = escapeHtml(currentText).replace(/\n/g, '<br>');
+                    index++;
+                } else {
+                    stopStreaming();
+                }
+            }, 50); // 50ms intervals like the real streaming
+        }
+        
+        function stopStreaming() {
+            if (streamingInterval) {
+                clearInterval(streamingInterval);
+                streamingInterval = null;
+            }
+        }
+        
+        function renderMarkdown() {
+            stopStreaming();
+            const demoElement = document.getElementById('streamingDemo');
+            
+            // Simulate the final markdown rendering
+            demoElement.innerHTML = `
+                <div class="message-test">
+                    <h3>📝 Final Markdown Rendering:</h3>
+                    <div style="background: #1e1e1e; padding: 15px; border-radius: 5px;">
+                        <p><em>In the real app, this would be processed by marked.js and highlight.js</em></p>
+                        <pre><code>${escapeHtml(currentText || sampleMarkdownText)}</code></pre>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Auto-start demo on page load
+        setTimeout(simulateStreaming, 1000);
+    </script>
+</body>
+</html>

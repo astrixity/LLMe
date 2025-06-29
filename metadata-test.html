@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata Test - LLMe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #343541;
+            color: white;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #444654;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            background: #2d3748;
+            border-radius: 8px;
+            border-left: 4px solid #10a37f;
+        }
+        .message-content {
+            margin-bottom: 10px;
+        }
+        .test-metadata {
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .button {
+            background: #10a37f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0f8c6c;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="test-container">
+        <h1>LLMe Metadata Test</h1>
+        <p>This page tests the metadata footer functionality.</p>
+        
+        <div>
+            <button class="button" onclick="createTestMessage()">Create Test Message</button>
+            <button class="button" onclick="clearTestArea()">Clear Test Area</button>
+        </div>
+        
+        <div id="test-messages">
+            <!-- Test messages will appear here -->
+        </div>
+        
+        <div class="message">
+            <h3>Expected Metadata Format:</h3>
+            <div class="message-content">
+                <p>This is a sample AI response with metadata footer.</p>
+            </div>
+            <div class="test-metadata">
+                <span class="metadata-item">
+                    <i class="fas fa-robot" style="color: #10a37f;"></i> llama3
+                </span>
+                <span class="metadata-item">
+                    <i class="fas fa-server" style="color: #3b82f6;"></i> Ollama
+                </span>
+                <span class="metadata-item">
+                    <i class="fas fa-coins" style="color: #f59e0b;"></i> ~42 tokens
+                </span>
+                <span class="metadata-item">
+                    <i class="fas fa-clock" style="color: #6b7280;"></i> 2.3s
+                </span>
+            </div>
+        </div>
+        
+        <div class="message">
+            <h3>Debug Information:</h3>
+            <div id="debug-info">
+                <p>Open browser console to see debug messages.</p>
+                <p>In the main LLMe app, you can run <code>chatApp.testMetadata()</code> in the console to debug metadata issues.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createTestMessage() {
+            const testArea = document.getElementById('test-messages');
+            const timestamp = Date.now();
+            
+            // Simulate the metadata structure used in LLMe
+            const testMessage = {
+                id: Math.random().toString(36).substr(2, 9),
+                role: 'assistant',
+                content: 'This is a test AI response generated at ' + new Date().toLocaleTimeString(),
+                timestamp: new Date(),
+                metadata: {
+                    provider: 'ollama',
+                    model: 'llama3',
+                    startTime: timestamp - 2500,
+                    endTime: timestamp,
+                    responseTime: 2500,
+                    tokens: Math.floor(Math.random() * 100) + 20
+                }
+            };
+            
+            const messageHtml = `
+                <div class="message">
+                    <div class="message-content">
+                        <p><strong>Test Message:</strong> ${testMessage.content}</p>
+                    </div>
+                    <div class="test-metadata">
+                        <span class="metadata-item">
+                            <i class="fas fa-robot" style="color: #10a37f;"></i> ${testMessage.metadata.model}
+                        </span>
+                        <span class="metadata-item">
+                            <i class="fas fa-server" style="color: #3b82f6;"></i> ${getProviderDisplayName(testMessage.metadata.provider)}
+                        </span>
+                        <span class="metadata-item">
+                            <i class="fas fa-coins" style="color: #f59e0b;"></i> ~${testMessage.metadata.tokens} tokens
+                        </span>
+                        <span class="metadata-item">
+                            <i class="fas fa-clock" style="color: #6b7280;"></i> ${formatResponseTime(testMessage.metadata.responseTime)}
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+            testArea.innerHTML += messageHtml;
+            
+            console.log('Created test message:', testMessage);
+        }
+        
+        function clearTestArea() {
+            document.getElementById('test-messages').innerHTML = '';
+        }
+        
+        function formatResponseTime(timeMs) {
+            if (timeMs === null || timeMs === undefined) return 'Unknown';
+            if (timeMs === 0) return '0ms';
+            
+            if (timeMs < 1000) {
+                return `${Math.round(timeMs)}ms`;
+            } else if (timeMs < 60000) {
+                return `${(timeMs / 1000).toFixed(1)}s`;
+            } else {
+                return `${(timeMs / 60000).toFixed(1)}m`;
+            }
+        }
+        
+        function getProviderDisplayName(provider) {
+            const providerNames = {
+                'ollama': 'Ollama',
+                'openrouter': 'OpenRouter',
+                'custom': 'Custom API'
+            };
+            return providerNames[provider] || provider;
+        }
+    </script>
+</body>
+</html>

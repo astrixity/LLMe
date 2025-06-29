@@ -1,0 +1,196 @@
+<!DOCTYPE html>        <ul>
+            <li>✅ ChatGPT-li    <div class="test-section">
+        <h2>📊 Response Metadata Footer</h2>
+        <p><strong>NEW:</strong> Each AI response now includes detailed metadata!</p>
+        <h3>Metadata Information:</h3>
+        <ul>
+            <li><strong>🤖 Model Name:</strong> The exact model used (e.g., llama3, gpt-4, etc.)</li>
+            <li><strong>🏢 Provider:</strong> Ollama, OpenRouter, or Custom API</li>
+            <li><strong>🪙 Token Count:</strong> Estimated tokens in the response (~4 chars per token)</li>
+            <li><strong>⏱️ Response Time:</strong> How long the response took to generate</li>
+        </ul>
+        <h3>Display Features:</h3>
+        <ul>
+            <li>📱 <strong>Responsive design</strong> - adapts to mobile screens</li>
+            <li>🎨 <strong>Color-coded icons</strong> for easy identification</li>
+            <li>✨ <strong>Hover effects</strong> for better visibility</li>
+            <li>📊 <strong>Real-time tracking</strong> during streaming responses</li>
+        </ul>
+        <p><em>Look for the metadata footer below each AI response!</em></p>
+        
+        <h3>Troubleshooting:</h3>
+        <ul>
+            <li><strong>No metadata showing?</strong> Open browser console and run <code>chatApp.testMetadata()</code></li>
+            <li><strong>Old messages missing metadata?</strong> The app automatically migrates old conversations</li>
+            <li><strong>Token count showing 0?</strong> Check if the response content is being saved properly</li>
+            <li><strong>Response time showing Unknown?</strong> Verify that streaming completes successfully</li>
+        </ul>
+        <p><em>Check the <code>metadata-test.html</code> file for a standalone metadata test.</em></p>
+    </div>
+
+    <div class="test-section">
+        <h2>✨ Streaming Cursor Animation</h2>
+        <p><strong>NEW:</strong> AI responses now show a blinking cursor during streaming!</p>
+        <h3>Visual Features:</h3>
+        <ul>
+            <li><strong>🟢 Green blinking cursor</strong> appears at the end of streaming text</li>
+            <li><strong>⚡ Real-time feedback</strong> shows AI is actively generating response</li>
+            <li><strong>📝 Context-aware</strong> works with plain text, markdown, and code blocks</li>
+            <li><strong>🎯 Automatic removal</strong> when streaming completes</li>
+        </ul>
+        <h3>Technical Details:</h3>
+        <ul>
+            <li><strong>CSS animations</strong> for smooth blinking effect (1s interval)</li>
+            <li><strong>Pseudo-elements</strong> for clean implementation</li>
+            <li><strong>Responsive design</strong> adapts to different text contexts</li>
+            <li><strong>Performance optimized</strong> no JavaScript animation loops</li>
+        </ul>
+        <p><em>Watch for the blinking green cursor while AI responses are being generated!</em></p>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Full Markdown Support</h2> UI with sidebar, chat area, and input</li>
+            <li>✅ Multiple AI providers (Ollama, OpenRouter, Custom)</li>
+            <li>✅ Provider/model selection with dynamic loading</li>
+            <li>✅ Settings modal with provider-specific fields</li>
+            <li>✅ localStorage persistence for conversations and settings</li>
+            <li>✅ Image upload support with preview</li>
+            <li>✅ <strong>Ollama Llava3 vision model support</strong></li>
+            <li>✅ Chat deletion with animation</li>
+            <li>✅ Error handling and connection status</li>
+            <li>✅ <strong>Streaming AI responses</strong></li>
+            <li>✅ <strong>Full Markdown Support</strong></li>
+            <li>✅ <strong>Response Metadata Footer</strong> (NEW!)</li>
+        </ul>ad>
+    <title>LLMe Chat Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>LLMe Chat Interface Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ Features Implemented</h2>
+        <ul>
+            <li>✅ ChatGPT-like UI with sidebar, chat area, and input</li>
+            <li>✅ Multiple AI providers (Ollama, OpenRouter, Custom)</li>
+            <li>✅ Provider/model selection with dynamic loading</li>
+            <li>✅ Settings modal with provider-specific fields</li>
+            <li>✅ localStorage persistence for conversations and settings</li>
+            <li>✅ Image upload support with preview</li>
+            <li>✅ <strong>Ollama Llava3 vision model support</strong> (NEW!)</li>
+            <li>✅ Chat deletion with animation</li>
+            <li>✅ Error handling and connection status</li>
+            <li>✅ <strong>Streaming AI responses</strong></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 How to Test Streaming</h2>
+        <ol>
+            <li>Open <code>index.html</code> in your browser</li>
+            <li>Configure your AI provider in Settings:
+                <ul>
+                    <li><strong>Ollama:</strong> Make sure Ollama is running on http://localhost:11434</li>
+                    <li><strong>OpenRouter:</strong> Add your API key</li>
+                    <li><strong>Custom API:</strong> Configure URL and model</li>
+                </ul>
+            </li>
+            <li>Select a model from the dropdown</li>
+            <li>Send a message and watch the AI response stream in real-time!</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>� Full Markdown Support</h2>
+        <p><strong>NEW:</strong> AI responses now support complete markdown formatting!</p>
+        <h3>Supported Markdown Features:</h3>
+        <ul>
+            <li><strong>Headers:</strong> # H1, ## H2, ### H3, etc.</li>
+            <li><strong>Text formatting:</strong> **bold**, *italic*, `inline code`</li>
+            <li><strong>Code blocks:</strong> ```language syntax with highlighting</li>
+            <li><strong>Lists:</strong> Bulleted and numbered lists</li>
+            <li><strong>Tables:</strong> Full table support with styling</li>
+            <li><strong>Links:</strong> [text](url) format</li>
+            <li><strong>Blockquotes:</strong> > quoted text</li>
+            <li><strong>Horizontal rules:</strong> --- separators</li>
+        </ul>
+        <h3>Enhanced Features:</h3>
+        <ul>
+            <li>🎨 <strong>Syntax highlighting</strong> for code blocks (powered by Highlight.js)</li>
+            <li>📋 <strong>Copy buttons</strong> on code blocks for easy copying</li>
+            <li>🎯 <strong>GitHub Dark theme</strong> for code highlighting</li>
+            <li>📱 <strong>Responsive</strong> markdown rendering on mobile</li>
+        </ul>
+        <p><em>Try asking the AI to write code examples, create tables, or format complex responses!</em></p>
+    </div>
+
+    <div class="test-section">
+        <h2>�🖼️ Vision Model Testing (Ollama Llava3)</h2>
+        <p><strong>NEW:</strong> Images are now properly formatted for Ollama vision models!</p>
+        <ol>
+            <li>Make sure you have a vision model like <code>llava3</code> installed in Ollama:
+                <pre>ollama pull llava3</pre>
+            </li>
+            <li>Select <strong>Ollama</strong> as provider and <strong>llava3</strong> as model</li>
+            <li>Upload an image using the 📎 button</li>
+            <li>Ask a question about the image (e.g., "What do you see in this image?")</li>
+            <li>The image will be sent as base64 data in Ollama's <code>images</code> array format</li>
+        </ol>
+        <p><em>Check the browser console for debug logs showing image processing.</em></p>
+    </div>
+
+    <div class="test-section">
+        <h2>⚡ Streaming Features</h2>
+        <ul>
+            <li>Real-time response generation as text arrives</li>
+            <li>Smooth typing effect without waiting for full response</li>
+            <li>Automatic scrolling to keep up with new content</li>
+            <li>Error handling for streaming failures</li>
+            <li>Fallback to non-streaming for compatible APIs</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Technical Implementation</h2>
+        <p>The streaming is implemented using:</p>
+        <ul>
+            <li><strong>Fetch API</strong> with ReadableStream support</li>
+            <li><strong>Server-Sent Events (SSE)</strong> parsing for different providers</li>
+            <li><strong>Real-time DOM updates</strong> as chunks arrive</li>
+            <li><strong>Protocol handling</strong> for Ollama and OpenAI/OpenRouter formats</li>
+        </ul>
+        
+        <h3>Image Format Handling</h3>
+        <p>The app now correctly handles images for different providers:</p>
+        <ul>
+            <li><strong>Ollama:</strong> Images sent as base64 strings in <code>images</code> array at request level</li>
+            <li><strong>OpenRouter/Custom:</strong> Images sent as OpenAI-style <code>image_url</code> objects in message content</li>
+        </ul>
+        <p>This ensures compatibility with Ollama's vision models like Llava3 while maintaining support for OpenAI-compatible APIs.</p>
+        
+        <h3>Markdown Processing</h3>
+        <p>Full markdown support implemented using:</p>
+        <ul>
+            <li><strong>Marked.js:</strong> Complete markdown parsing with GitHub Flavored Markdown (GFM)</li>
+            <li><strong>Highlight.js:</strong> Syntax highlighting for code blocks</li>
+            <li><strong>Custom CSS:</strong> Dark theme styling optimized for chat interface</li>
+            <li><strong>Copy functionality:</strong> One-click code copying with clipboard API</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Provider Formats</h2>
+        <ul>
+            <li><strong>Ollama:</strong> <code>{"message": {"content": "text"}}</code></li>
+            <li><strong>OpenRouter/Custom:</strong> <code>data: {"choices": [{"delta": {"content": "text"}}]}</code></li>
+        </ul>
+    </div>
+
+    <p><a href="index.html">← Back to LLMe Chat</a></p>
+</body>
+</html>
