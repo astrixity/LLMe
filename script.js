@@ -43,6 +43,8 @@ class ChatApp {
     initializeElements() {
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
+        this.sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        this.mainContent = document.querySelector('.main-content');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.chatHistory = document.getElementById('chatHistory');
         this.chatMessages = document.getElementById('chatMessages');
@@ -105,7 +107,12 @@ class ChatApp {
     setupEventListeners() {
         // Sidebar toggle
         this.sidebarToggle.addEventListener('click', () => {
-            this.sidebar.classList.toggle('open');
+            this.toggleSidebar();
+        });
+
+        // Sidebar backdrop click (mobile)
+        this.sidebarBackdrop.addEventListener('click', () => {
+            this.closeSidebar();
         });
 
         // New chat button
@@ -231,6 +238,11 @@ class ChatApp {
             if (e.target === this.deleteModal) {
                 this.hideDeleteModal();
             }
+        });
+
+        // Window resize listener for responsive sidebar behavior
+        window.addEventListener('resize', () => {
+            this.handleResize();
         });
     }
 
@@ -1996,6 +2008,73 @@ Note: Web browsers block cross-origin requests for security.`);
         console.log('Testing renderMessages...');
         this.renderMessages();
     }
+
+    toggleSidebar() {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Mobile behavior
+            const isOpen = this.sidebar.classList.contains('open');
+            if (isOpen) {
+                this.closeSidebar();
+            } else {
+                this.openSidebar();
+            }
+        } else {
+            // Desktop behavior
+            const isCollapsed = this.sidebar.classList.contains('collapsed');
+            if (isCollapsed) {
+                this.expandSidebar();
+            } else {
+                this.collapseSidebar();
+            }
+        }
+        
+        // Toggle hamburger icon animation
+        this.sidebarToggle.classList.toggle('active');
+    }
+
+    openSidebar() {
+        this.sidebar.classList.add('open');
+        this.sidebarBackdrop.classList.add('show');
+        this.mainContent.classList.add('sidebar-open');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    closeSidebar() {
+        this.sidebar.classList.remove('open');
+        this.sidebarBackdrop.classList.remove('show');
+        this.mainContent.classList.remove('sidebar-open');
+        document.body.style.overflow = ''; // Restore scrolling
+        this.sidebarToggle.classList.remove('active');
+    }
+
+    collapseSidebar() {
+        this.sidebar.classList.add('collapsed');
+        this.mainContent.classList.add('sidebar-collapsed');
+    }
+
+    expandSidebar() {
+        this.sidebar.classList.remove('collapsed');
+        this.mainContent.classList.remove('sidebar-collapsed');
+    }
+
+    // Handle window resize to manage sidebar state
+    handleResize() {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (!isMobile) {
+            // Desktop - clean up mobile states
+            this.sidebar.classList.remove('open');
+            this.sidebarBackdrop.classList.remove('show');
+            this.mainContent.classList.remove('sidebar-open');
+            document.body.style.overflow = '';
+        } else {
+            // Mobile - clean up desktop states
+            this.sidebar.classList.remove('collapsed');
+            this.mainContent.classList.remove('sidebar-collapsed');
+        }
+    }
 }
 
 // Initialize the app when DOM is loaded
@@ -2003,25 +2082,29 @@ Note: Web browsers block cross-origin requests for security.`);
 let chatApp;
 document.addEventListener('DOMContentLoaded', () => {
     chatApp = new ChatApp();
-});
-
-// Handle responsive sidebar
-window.addEventListener('resize', () => {
-    const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth > 768) {
-        sidebar.classList.remove('open');
-    }
+    window.chatApp = chatApp; // Make globally accessible
 });
 
 // Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     
     if (window.innerWidth <= 768 && 
         sidebar.classList.contains('open') && 
         !sidebar.contains(e.target) && 
-        !sidebarToggle.contains(e.target)) {
-        sidebar.classList.remove('open');
+        !sidebarToggle.contains(e.target) &&
+        !sidebarBackdrop.contains(e.target)) {
+        // Find the ChatApp instance to call closeSidebar
+        const appInstance = window.chatApp;
+        if (appInstance && appInstance.closeSidebar) {
+            appInstance.closeSidebar();
+        } else {
+            // Fallback to manual state management
+            sidebar.classList.remove('open');
+            sidebarBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
     }
 });

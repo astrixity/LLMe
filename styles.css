@@ -31,6 +31,8 @@ body {
     display: flex;
     flex-direction: column;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1000;
 }
 
 .sidebar-header {
@@ -194,11 +196,22 @@ body {
     cursor: pointer;
     padding: 8px;
     border-radius: 4px;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1001;
 }
 
 .sidebar-toggle:hover {
     background: #40414f;
+}
+
+/* Hamburger menu icon animation */
+.sidebar-toggle i {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-toggle.active i {
+    transform: rotate(90deg);
 }
 
 .model-selector {
@@ -300,6 +313,26 @@ body {
 
     .chat-title {
         font-size: 13px;
+    }
+
+    .header-controls {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+    }
+
+    .model-selector select {
+        min-width: 120px;
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+
+    .example-prompts {
+        grid-template-columns: 1fr;
+    }
+
+    .chat-container {
+        padding: 20px 16px;
     }
 }
 
@@ -961,22 +994,48 @@ body {
     font-size: 12px;
 }
 
+/* Sidebar backdrop for mobile */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
-        left: -260px;
+        left: 0;
         top: 0;
         height: 100vh;
         z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .sidebar.open {
-        transform: translateX(260px);
+        transform: translateX(0);
     }
 
     .main-content {
         width: 100%;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-content.sidebar-open {
+        transform: translateX(0);
     }
 
     .header-controls {
@@ -998,8 +1057,35 @@ body {
     .chat-container {
         padding: 20px 16px;
     }
+}
 
-    /* Mobile-specific chat item improvements */
+/* Desktop sidebar collapse animation */
+@media (min-width: 769px) {
+    .sidebar {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .sidebar.collapsed {
+        width: 0;
+        transform: translateX(-100%);
+        overflow: hidden;
+    }
+    
+    .main-content {
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .main-content.sidebar-collapsed {
+        margin-left: 0;
+    }
+    
+    .app {
+        overflow: hidden;
+    }
+}
+
+/* Mobile-specific chat item improvements */
+@media (max-width: 768px) {
     .chat-item {
         padding: 16px 12px;
         margin-bottom: 8px;
