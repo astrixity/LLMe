@@ -884,16 +884,15 @@ The web browser blocks cross-origin requests for security reasons.`);
                     }
                 } catch (error) {
                     if (error.message.includes('CORS') || error.name === 'TypeError') {
-                        throw new Error(`CORS error: Cannot access Ollama from web browser. 
+                        alert(`Cannot access Ollama from web browser. 
                         
 Solutions:
 1. Download and run this app locally (recommended)
 2. Use a browser extension to disable CORS (not recommended for security)
 3. Run Ollama with CORS enabled: 
-   - Set environment variable: OLLAMA_ORIGINS=https://astrixity.github.io
-   - Or use: ollama serve --origins https://astrixity.github.io
-
-For local development, you can also set OLLAMA_ORIGINS=* (allows all origins)`);
+   - Set environment variable: \`OLLAMA_ORIGINS=https://astrixity.github.io\` OR \`OLLAMA_ORIGINS=*\`
+   - Or use: \`ollama serve --origins https://astrixity.github.io\` OR \`ollama serve --origins *\``)
+                        throw new Error(`CORS error`);
                     }
                     throw error;
                 }
