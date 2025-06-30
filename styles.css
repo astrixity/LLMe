@@ -1290,6 +1290,42 @@ body {
     border-color: #565869;
 }
 
+/* Input with button layout */
+.input-with-button {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.reset-btn {
+    background: #40414f;
+    border: 1px solid #565869;
+    border-radius: 6px;
+    color: #8e8ea0;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reset-btn:hover {
+    background: #565869;
+    color: #fff;
+    border-color: #6c6c80;
+}
+
+.reset-btn:active {
+    transform: scale(0.95);
+}
+
 /* Provider-specific settings visibility */
 .provider-ollama,
 .provider-openrouter,

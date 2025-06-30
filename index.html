@@ -145,7 +145,12 @@
 
                 <div class="setting-group provider-ollama" id="ollamaSettings">
                     <label for="ollamaUrl">Ollama Base URL:</label>
-                    <input type="text" id="ollamaUrl" placeholder="http://localhost:11434" value="http://localhost:11434">
+                    <div class="input-with-button">
+                        <input type="text" id="ollamaUrl" placeholder="http://localhost:11434" value="http://localhost:11434">
+                        <button type="button" class="reset-btn" id="resetOllamaUrl" title="Reset to default">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                    </div>
                     <small>Default: http://localhost:11434</small>
                 </div>
                 
@@ -157,13 +162,23 @@
                 
                 <div class="setting-group provider-openrouter" id="openrouterUrlSettings">
                     <label for="openrouterUrl">OpenRouter Base URL:</label>
-                    <input type="text" id="openrouterUrl" placeholder="https://openrouter.ai/api/v1" value="https://openrouter.ai/api/v1">
+                    <div class="input-with-button">
+                        <input type="text" id="openrouterUrl" placeholder="https://openrouter.ai/api/v1" value="https://openrouter.ai/api/v1">
+                        <button type="button" class="reset-btn" id="resetOpenrouterUrl" title="Reset to default">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                    </div>
                     <small>Default: https://openrouter.ai/api/v1</small>
                 </div>
 
                 <div class="setting-group provider-custom" id="customUrlSettings">
                     <label for="customUrl">Custom API Base URL:</label>
-                    <input type="text" id="customUrl" placeholder="https://your-api.example.com/v1">
+                    <div class="input-with-button">
+                        <input type="text" id="customUrl" placeholder="https://your-api.example.com/v1">
+                        <button type="button" class="reset-btn" id="resetCustomUrl" title="Reset to empty">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <small>Enter your custom API endpoint URL</small>
                 </div>
 

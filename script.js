@@ -76,6 +76,11 @@ class ChatApp {
         this.customKey = document.getElementById('customKey');
         this.customModel = document.getElementById('customModel');
 
+        // Reset buttons
+        this.resetOllamaUrl = document.getElementById('resetOllamaUrl');
+        this.resetOpenrouterUrl = document.getElementById('resetOpenrouterUrl');
+        this.resetCustomUrl = document.getElementById('resetCustomUrl');
+
         // Debug: Check if critical elements exist
         console.log('Critical elements check:');
         console.log('messageInput:', this.messageInput ? 'found' : 'NOT FOUND');
@@ -244,6 +249,47 @@ class ChatApp {
         window.addEventListener('resize', () => {
             this.handleResize();
         });
+
+        // Reset button event listeners
+        this.resetOllamaUrl.addEventListener('click', () => {
+            this.resetUrlToDefault('ollama');
+        });
+
+        this.resetOpenrouterUrl.addEventListener('click', () => {
+            this.resetUrlToDefault('openrouter');
+        });
+
+        this.resetCustomUrl.addEventListener('click', () => {
+            this.resetUrlToDefault('custom');
+        });
+
+        // URL input change listeners to save settings in real-time
+        this.ollamaUrl.addEventListener('blur', () => {
+            const newValue = this.ollamaUrl.value.trim() || 'http://localhost:11434';
+            if (this.settings.ollamaUrl !== newValue) {
+                console.log('Ollama URL changed from', this.settings.ollamaUrl, 'to', newValue);
+                this.settings.ollamaUrl = newValue;
+                this.saveSettings();
+            }
+        });
+
+        this.openrouterUrl.addEventListener('blur', () => {
+            const newValue = this.openrouterUrl.value.trim() || 'https://openrouter.ai/api/v1';
+            if (this.settings.openrouterUrl !== newValue) {
+                console.log('OpenRouter URL changed from', this.settings.openrouterUrl, 'to', newValue);
+                this.settings.openrouterUrl = newValue;
+                this.saveSettings();
+            }
+        });
+
+        this.customUrl.addEventListener('blur', () => {
+            const newValue = this.customUrl.value.trim();
+            if (this.settings.customUrl !== newValue) {
+                console.log('Custom URL changed from', this.settings.customUrl, 'to', newValue);
+                this.settings.customUrl = newValue;
+                this.saveSettings();
+            }
+        });
     }
 
     adjustTextareaHeight() {
@@ -262,6 +308,48 @@ class ChatApp {
             this.settingsBtn.classList.add('connection-error');
         } else {
             this.settingsBtn.classList.remove('connection-error');
+        }
+    }
+
+    resetUrlToDefault(provider) {
+        const defaults = {
+            ollama: 'http://localhost:11434',
+            openrouter: 'https://openrouter.ai/api/v1',
+            custom: '' // Custom URLs reset to empty
+        };
+
+        const urlFields = {
+            ollama: this.ollamaUrl,
+            openrouter: this.openrouterUrl,
+            custom: this.customUrl
+        };
+
+        const settingsKeys = {
+            ollama: 'ollamaUrl',
+            openrouter: 'openrouterUrl',
+            custom: 'customUrl'
+        };
+
+        if (urlFields[provider] && defaults.hasOwnProperty(provider)) {
+            urlFields[provider].value = defaults[provider];
+            this.settings[settingsKeys[provider]] = defaults[provider];
+            
+            // Save settings immediately
+            this.saveSettings();
+            
+            // Show visual feedback
+            const button = provider === 'ollama' ? this.resetOllamaUrl : 
+                          provider === 'openrouter' ? this.resetOpenrouterUrl : 
+                          this.resetCustomUrl;
+            
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.style.color = '#10a37f';
+            
+            setTimeout(() => {
+                button.innerHTML = originalIcon;
+                button.style.color = '';
+            }, 1000);
         }
     }
 
@@ -757,6 +845,7 @@ class ChatApp {
         }
 
         try {
+            console.log('Ollama: Making request to URL:', `${this.settings.ollamaUrl}/api/chat`);
             const response = await fetch(`${this.settings.ollamaUrl}/api/chat`, {
                 method: 'POST',
                 headers: {
@@ -792,6 +881,7 @@ The web browser blocks cross-origin requests for security reasons.`);
             throw new Error('OpenRouter API key is required');
         }
 
+        console.log('OpenRouter: Making request to URL:', `${this.settings.openrouterUrl}/chat/completions`);
         const response = await fetch(`${this.settings.openrouterUrl}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -835,6 +925,7 @@ The web browser blocks cross-origin requests for security reasons.`);
             headers['Authorization'] = `Bearer ${this.settings.customKey}`;
         }
 
+        console.log('Custom API: Making request to URL:', `${this.settings.customUrl}/chat/completions`);
         const response = await fetch(`${this.settings.customUrl}/chat/completions`, {
             method: 'POST',
             headers: headers,
@@ -1223,18 +1314,8 @@ Note: Web browsers block cross-origin requests for security.`);
             });
         }
 
-        // Make provider URLs read-only for non-custom providers and set defaults
-        this.ollamaUrl.readOnly = true;
-        this.openrouterUrl.readOnly = true;
-        
-        // Reset to default values for constant providers
-        if (this.settings.provider === 'ollama') {
-            this.ollamaUrl.value = 'http://localhost:11434';
-            this.settings.ollamaUrl = 'http://localhost:11434';
-        } else if (this.settings.provider === 'openrouter') {
-            this.openrouterUrl.value = 'https://openrouter.ai/api/v1';
-            this.settings.openrouterUrl = 'https://openrouter.ai/api/v1';
-        }
+        // Note: Base URLs are now always editable for all providers
+        // Users can customize them and reset to defaults using reset buttons
     }
 
     openSettingsModal() {
@@ -1259,6 +1340,14 @@ Note: Web browsers block cross-origin requests for security.`);
     }
 
     saveSettingsFromModal() {
+        // Capture current URL values from input fields
+        console.log('Saving settings from modal...');
+        console.log('Current input values:', {
+            ollamaUrl: this.ollamaUrl.value.trim(),
+            openrouterUrl: this.openrouterUrl.value.trim(),
+            customUrl: this.customUrl.value.trim()
+        });
+        
         this.settings.ollamaUrl = this.ollamaUrl.value.trim() || 'http://localhost:11434';
         this.settings.openrouterKey = this.openrouterKey.value.trim();
         this.settings.openrouterUrl = this.openrouterUrl.value.trim() || 'https://openrouter.ai/api/v1';
@@ -1267,6 +1356,8 @@ Note: Web browsers block cross-origin requests for security.`);
         this.settings.customModel = this.customModel.value.trim();
         this.settings.provider = this.providerSelect.value;
         
+        console.log('Final settings after modal save:', this.settings);
+        
         this.loadModelsForCurrentProvider();
         this.saveSettings();
         this.closeSettingsModal();
@@ -1274,6 +1365,7 @@ Note: Web browsers block cross-origin requests for security.`);
 
     saveSettings() {
         try {
+            console.log('Saving settings:', this.settings);
             localStorage.setItem('aiProviderSettings', JSON.stringify(this.settings));
         } catch (error) {
             console.warn('Failed to save settings:', error);
@@ -1285,8 +1377,10 @@ Note: Web browsers block cross-origin requests for security.`);
             const saved = localStorage.getItem('aiProviderSettings');
             if (saved) {
                 this.settings = { ...this.settings, ...JSON.parse(saved) };
+                console.log('Settings loaded from localStorage:', this.settings);
             } else {
                 // If no saved settings, save the defaults
+                console.log('No saved settings found, using defaults:', this.settings);
                 this.saveSettings();
             }
             
