@@ -860,6 +860,27 @@ class ChatApp {
 
             return response;
         } catch (error) {
+            // Check for Mixed Content error (HTTPS page trying to access HTTP)
+            const isHttpsPage = window.location.protocol === 'https:';
+            const isHttpOllama = this.settings.ollamaUrl.startsWith('http://');
+            
+            if (isHttpsPage && isHttpOllama) {
+                throw new Error(`Mixed Content Error: Cannot access HTTP Ollama server from HTTPS page.
+
+🔒 Security Issue: Your page is served over HTTPS but Ollama is on HTTP.
+
+Solutions:
+1. 📥 Download and run this app locally (recommended)
+2. 🔧 Set up HTTPS for Ollama:
+   - Use a reverse proxy (nginx, Traefik, etc.)
+   - Or use Cloudflare Tunnel
+3. 🌐 Use OpenRouter or Custom API instead
+4. 🔓 Access via HTTP (not recommended): http://astrixity.github.io/LLMe/
+
+Current Ollama URL: ${this.settings.ollamaUrl}
+Page protocol: ${window.location.protocol}`);
+            }
+            
             if (error.message.includes('CORS') || error.name === 'TypeError') {
                 throw new Error(`CORS error: Cannot access Ollama from web browser.
 
@@ -974,6 +995,25 @@ The web browser blocks cross-origin requests for security reasons.`);
                         await this.loadOllamaModels();
                     }
                 } catch (error) {
+                    // Check for Mixed Content error (HTTPS page trying to access HTTP)
+                    const isHttpsPage = window.location.protocol === 'https:';
+                    const isHttpOllama = this.settings.ollamaUrl.startsWith('http://');
+                    
+                    if (isHttpsPage && isHttpOllama) {
+                        alert(`Mixed Content Error: Cannot access HTTP Ollama from HTTPS page.
+
+🔒 Security Issue: Your page is served over HTTPS but Ollama is on HTTP.
+
+Solutions:
+1. 📥 Download and run this app locally (recommended)
+2. 🔧 Set up HTTPS for Ollama (reverse proxy, Cloudflare Tunnel)
+3. 🌐 Use OpenRouter or Custom API instead
+4. 🔓 Access via HTTP: http://astrixity.github.io/LLMe/
+
+Current Ollama URL: ${this.settings.ollamaUrl}`);
+                        throw new Error(`Mixed Content error`);
+                    }
+                    
                     if (error.message.includes('CORS') || error.name === 'TypeError') {
                         alert(`Cannot access Ollama from web browser. 
                         
@@ -1098,6 +1138,27 @@ Solutions:
         } catch (error) {
             console.error('Failed to load Ollama models:', error);
             this.providerModels.ollama = [];
+            
+            // Check for Mixed Content error (HTTPS page trying to access HTTP)
+            const isHttpsPage = window.location.protocol === 'https:';
+            const isHttpOllama = this.settings.ollamaUrl.startsWith('http://');
+            
+            if (isHttpsPage && isHttpOllama) {
+                throw new Error(`Mixed Content Error: Cannot access HTTP Ollama server from HTTPS page.
+
+🔒 Security Issue: Your page is served over HTTPS but Ollama is on HTTP.
+
+Solutions:
+1. 📥 Download and run this app locally (recommended)
+2. 🔧 Set up HTTPS for Ollama:
+   - Use a reverse proxy (nginx, Traefik, etc.)
+   - Or use Cloudflare Tunnel
+3. 🌐 Use OpenRouter or Custom API instead
+4. 🔓 Access via HTTP (not recommended): http://astrixity.github.io/LLMe/
+
+Current Ollama URL: ${this.settings.ollamaUrl}
+Page protocol: ${window.location.protocol}`);
+            }
             
             if (error.message.includes('CORS') || error.name === 'TypeError') {
                 throw new Error(`CORS error: Cannot access Ollama from web browser.
@@ -1624,22 +1685,48 @@ Note: Web browsers block cross-origin requests for security.`);
     }
 
     showWelcomeSection() {
-        // Check if we're running from GitHub Pages and show CORS warning for Ollama
+        // Check if we're running over HTTPS and show comprehensive warning for Ollama
+        const isHttps = window.location.protocol === 'https:';
         const isGitHubPages = window.location.hostname.includes('github.io');
-        const corsWarning = isGitHubPages ? `
-            <div class="cors-warning" style="background: #ff6b6b; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>Note:</strong> Ollama won't work directly from this hosted version due to CORS restrictions. 
-                <br><strong>Solutions:</strong>
-                <br>• Download and run locally (recommended)
-                <br>• Use OpenRouter or Custom API instead
-                <br>• Configure Ollama with: <code>OLLAMA_ORIGINS=https://astrixity.github.io</code>
-            </div>
-        ` : '';
+        
+        let warning = '';
+        if (isHttps) {
+            warning = `
+                <div class="mixed-content-warning" style="background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <i class="fas fa-shield-alt" style="font-size: 1.5rem; margin-top: 2px; color: #ffe4e1;"></i>
+                        <div>
+                            <strong style="font-size: 1.1rem;">🔒 HTTPS Security Notice</strong>
+                            <br><br>
+                            <strong>Ollama (HTTP) won't work from this HTTPS page due to Mixed Content restrictions.</strong>
+                            <br><br>
+                            <strong>✅ Solutions:</strong>
+                            <br>• 📥 <strong>Download and run locally</strong> (recommended)
+                            <br>• 🌐 Use <strong>OpenRouter</strong> or <strong>Custom API</strong> instead
+                            <br>• 🔧 Set up HTTPS for Ollama (reverse proxy)
+                            <br>• 🔓 Access via <a href="http://astrixity.github.io/LLMe/" style="color: #ffe4e1; text-decoration: underline;">HTTP version</a> (less secure)
+                            <br><br>
+                            <small><em>This is a browser security feature that prevents HTTPS pages from accessing HTTP resources.</em></small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (isGitHubPages) {
+            warning = `
+                <div class="cors-warning" style="background: #ff6b6b; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Note:</strong> Ollama might not work directly from this hosted version due to CORS restrictions. 
+                    <br><strong>Solutions:</strong>
+                    <br>• Download and run locally (recommended)
+                    <br>• Use OpenRouter or Custom API instead
+                    <br>• Configure Ollama with: <code>OLLAMA_ORIGINS=https://astrixity.github.io</code>
+                </div>
+            `;
+        }
 
         this.chatMessages.innerHTML = `
             <div class="welcome-section">
-                ${corsWarning}
+                ${warning}
                 <div class="welcome-title">
                     <h1>LLMe</h1>
                     <p>How can I help you today?</p>
