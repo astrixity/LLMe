@@ -265,31 +265,44 @@ class ChatApp {
 
         // URL input change listeners to save settings in real-time
         this.ollamaUrl.addEventListener('blur', () => {
-            const newValue = this.ollamaUrl.value.trim() || 'http://localhost:11434';
+            const rawValue = this.ollamaUrl.value.trim() || 'http://localhost:11434';
+            const newValue = this.sanitizeUrl(rawValue);
             if (this.settings.ollamaUrl !== newValue) {
                 console.log('Ollama URL changed from', this.settings.ollamaUrl, 'to', newValue);
                 this.settings.ollamaUrl = newValue;
+                this.ollamaUrl.value = newValue; // Update input field with sanitized value
                 this.saveSettings();
             }
         });
 
         this.openrouterUrl.addEventListener('blur', () => {
-            const newValue = this.openrouterUrl.value.trim() || 'https://openrouter.ai/api/v1';
+            const rawValue = this.openrouterUrl.value.trim() || 'https://openrouter.ai/api/v1';
+            const newValue = this.sanitizeUrl(rawValue);
             if (this.settings.openrouterUrl !== newValue) {
                 console.log('OpenRouter URL changed from', this.settings.openrouterUrl, 'to', newValue);
                 this.settings.openrouterUrl = newValue;
+                this.openrouterUrl.value = newValue; // Update input field with sanitized value
                 this.saveSettings();
             }
         });
 
         this.customUrl.addEventListener('blur', () => {
-            const newValue = this.customUrl.value.trim();
+            const rawValue = this.customUrl.value.trim();
+            const newValue = this.sanitizeUrl(rawValue);
             if (this.settings.customUrl !== newValue) {
                 console.log('Custom URL changed from', this.settings.customUrl, 'to', newValue);
                 this.settings.customUrl = newValue;
+                this.customUrl.value = newValue; // Update input field with sanitized value
                 this.saveSettings();
             }
         });
+    }
+
+    // Utility method to sanitize URLs by removing trailing slashes
+    sanitizeUrl(url) {
+        if (!url) return url;
+        // Remove trailing slash(es) but keep the protocol part intact
+        return url.replace(/\/+$/, '');
     }
 
     adjustTextareaHeight() {
@@ -1409,13 +1422,19 @@ Note: Web browsers block cross-origin requests for security.`);
             customUrl: this.customUrl.value.trim()
         });
         
-        this.settings.ollamaUrl = this.ollamaUrl.value.trim() || 'http://localhost:11434';
+        // Sanitize URLs to remove trailing slashes
+        this.settings.ollamaUrl = this.sanitizeUrl(this.ollamaUrl.value.trim() || 'http://localhost:11434');
         this.settings.openrouterKey = this.openrouterKey.value.trim();
-        this.settings.openrouterUrl = this.openrouterUrl.value.trim() || 'https://openrouter.ai/api/v1';
-        this.settings.customUrl = this.customUrl.value.trim();
+        this.settings.openrouterUrl = this.sanitizeUrl(this.openrouterUrl.value.trim() || 'https://openrouter.ai/api/v1');
+        this.settings.customUrl = this.sanitizeUrl(this.customUrl.value.trim());
         this.settings.customKey = this.customKey.value.trim();
         this.settings.customModel = this.customModel.value.trim();
         this.settings.provider = this.providerSelect.value;
+        
+        // Update input fields with sanitized values
+        this.ollamaUrl.value = this.settings.ollamaUrl;
+        this.openrouterUrl.value = this.settings.openrouterUrl;
+        this.customUrl.value = this.settings.customUrl;
         
         console.log('Final settings after modal save:', this.settings);
         
@@ -1438,6 +1457,12 @@ Note: Web browsers block cross-origin requests for security.`);
             const saved = localStorage.getItem('aiProviderSettings');
             if (saved) {
                 this.settings = { ...this.settings, ...JSON.parse(saved) };
+                
+                // Sanitize URLs from loaded settings to remove any trailing slashes
+                this.settings.ollamaUrl = this.sanitizeUrl(this.settings.ollamaUrl);
+                this.settings.openrouterUrl = this.sanitizeUrl(this.settings.openrouterUrl);
+                this.settings.customUrl = this.sanitizeUrl(this.settings.customUrl);
+                
                 console.log('Settings loaded from localStorage:', this.settings);
             } else {
                 // If no saved settings, save the defaults

@@ -102,6 +102,38 @@ If using the hosted version with Ollama, you may encounter CORS errors. Solution
    ollama serve
    ```
 
+### 🌐 Remote Ollama Access (Different PC)
+To access Ollama running on a different PC with HTTPS support, use **Cloudflare Tunnel**:
+
+#### Option 1: Cloudflare Tunnel (Recommended for HTTPS)
+```bash
+# Install cloudflared
+# Windows: Download from https://github.com/cloudflare/cloudflared/releases
+# macOS: brew install cloudflare/cloudflare/cloudflared
+# Linux: Follow instructions at https://github.com/cloudflare/cloudflared
+
+# Configure Ollama with open CORS
+export OLLAMA_ORIGINS="*"
+ollama serve
+
+# In another terminal, create tunnel
+cloudflared tunnel --url http://localhost:11434
+```
+
+This will give you an HTTPS URL like `https://random-name.trycloudflare.com` that you can use as your Ollama Base URL in LLMe settings.
+
+#### Option 2: Direct Network Access (HTTP only)
+```bash
+# Configure Ollama to bind to all interfaces
+export OLLAMA_HOST="0.0.0.0:11434"
+export OLLAMA_ORIGINS="*"
+ollama serve
+
+# Use the machine's IP address
+# Example: http://192.168.1.100:11434
+```
+**Note**: This only works with the HTTP version of LLMe due to Mixed Content restrictions.
+
 ## 📁 Project Structure
 
 ```
@@ -186,6 +218,16 @@ Compatible with OpenAI format or similar streaming APIs.
 Error: Access to fetch at 'http://localhost:11434' blocked by CORS policy
 ```
 **Solution**: Configure Ollama CORS headers or run locally
+
+#### Mixed Content Errors (HTTPS → HTTP)
+```
+Mixed Content: The page was loaded over HTTPS, but requested an insecure resource 'http://...'
+```
+**Solutions**:
+1. **Use Cloudflare Tunnel**: Creates HTTPS endpoint for local Ollama
+2. **Download and run locally**: Bypasses HTTPS restrictions
+3. **Use OpenRouter/Custom API**: Already HTTPS-compatible
+4. **Access via HTTP**: Use `http://astrixity.github.io/LLMe/` (less secure)
 
 #### Models Not Loading
 1. **Check connection**: Use "Test Connection" button
